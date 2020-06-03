@@ -1,42 +1,40 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { getEffort, FileEffortMap } from "./change-score";
+import { FileEffortMap } from "./change-score";
+import { StatusBarItem } from "./status-bar-item";
+import { Workspace } from "./workspace";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate({ subscriptions }: vscode.ExtensionContext) {
-  const item = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Left
-  );
-  item.text = "Loading...";
+  const item = StatusBarItem.make();
   item.show();
 
-  const map = await getEffort(vscode.workspace.workspaceFolders![0].uri.path);
-
+  let activeWorkspace = await activateWorkspace(
+    item,
+    vscode.workspace.workspaceFolders?.[0]
+  );
   subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor((event) => {
-      const fileName = event?.document.fileName;
-      if (fileName) {
-        updateItem(map, fileName, item);
-      }
+    vscode.workspace.onDidChangeWorkspaceFolders(async (event) => {
+      activeWorkspace?.dispose();
+      activeWorkspace = await activateWorkspace(item, event.added[0]);
     })
   );
 
-  item.text = "Done Loading :)";
   subscriptions.push(item);
 }
 
-function updateItem(
-  map: FileEffortMap,
-  fileName: string,
-  item: vscode.StatusBarItem
+async function activateWorkspace(
+  item: StatusBarItem,
+  workspace: vscode.WorkspaceFolder | undefined
 ) {
-  const key = Object.keys(map).find((key) => fileName.includes(key));
-  if (key) {
-    const info = map[key];
-    item.text = `Changes: ${info.changes} Frequency: ${info.frequency}`;
+  if (!workspace) {
+    return;
   }
+  const wrappedWorkspace = new Workspace(workspace, item);
+  wrappedWorkspace.activate();
+  return wrappedWorkspace;
 }
 
 // this method is called when your extension is deactivated
