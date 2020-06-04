@@ -1,7 +1,7 @@
 import * as simpleGit from "simple-git/promise";
 let git;
 
-export interface FileEffortMap {
+export class FileEffortMap {
   [fileName: string]: { changes: number; frequency: ChangeFrequency };
 }
 
@@ -20,8 +20,12 @@ export enum ChangeFrequency {
   Often = "Often",
 }
 
-export async function getEffort(path: string): Promise<FileEffortMap> {
+export async function getEffort(path: string): Promise<FileEffortMap | null> {
   git = simpleGit(path);
+  const isRepo = await git.checkIsRepo();
+  if (!isRepo) {
+    return null;
+  }
   const files = (await git.raw(["ls-files"])).trim().split("\n");
   const { map, stats } = await getMapAndStats(files);
   return Object.keys(map).reduce((acc: any, curr) => {

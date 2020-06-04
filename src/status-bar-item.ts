@@ -22,6 +22,10 @@ export class StatusBarItem {
       "Loading Complete. Select a file to see its change score.";
   }
 
+  displayNoRepo() {
+    this.statusBarItem.text = "No git repo found.";
+  }
+
   displayChanges(changes: number, frequency: ChangeFrequency) {
     this.statusBarItem.text = `Changes: ${changes} Frequency: ${frequency}`;
   }

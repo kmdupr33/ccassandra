@@ -16,13 +16,17 @@ export class Workspace {
     this.statusBarItem.displayLoading();
     const map = await getEffort(this.path);
     this.statusBarItem.displayFinishedLoading();
-    this.updateItem(map, vscode.window.activeTextEditor?.document.fileName);
-    this.subscriptions.push(
-      vscode.window.onDidChangeActiveTextEditor((event) => {
-        const fileName = event?.document.fileName;
-        this.updateItem(map, fileName);
-      })
-    );
+    if (map === null) {
+      this.statusBarItem.displayNoRepo();
+    } else {
+      this.updateItem(map, vscode.window.activeTextEditor?.document.fileName);
+      this.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor((event) => {
+          const fileName = event?.document.fileName;
+          this.updateItem(map, fileName);
+        })
+      );
+    }
   }
 
   updateItem(map: FileEffortMap, fileName: string | undefined) {
