@@ -1,5 +1,5 @@
 import * as simpleGit from "simple-git/promise";
-let git;
+let git: any;
 
 export class FileEffortMap {
   [fileName: string]: { changes: number; frequency: ChangeFrequency };

@@ -1,6 +1,7 @@
 {
   "name": "refactor-score",
   "displayName": "Change Score",
+  "publisher": "matt-dupree",
   "description": "Know where to spend your refactoring time",
   "version": "0.0.1",
   "engines": {
