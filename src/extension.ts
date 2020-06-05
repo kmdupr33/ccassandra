@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { FileEffortMap } from "./change-score";
 import { StatusBarItem } from "./status-bar-item";
 import { Workspace } from "./workspace";
 
