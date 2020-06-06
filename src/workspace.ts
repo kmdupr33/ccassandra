@@ -41,6 +41,6 @@ export class Workspace {
   }
 
   get path() {
-    return this.workspace.uri.path;
+    return this.workspace.uri.fsPath;
   }
 }
