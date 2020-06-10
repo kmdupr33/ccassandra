@@ -1,5 +1,5 @@
 import * as simpleGit from "simple-git/promise";
-let git: any;
+let git: simpleGit.SimpleGit;
 
 export class FileEffortMap {
   [fileName: string]: { changes: number; frequency: ChangeFrequency };
@@ -26,8 +26,7 @@ export async function getEffort(path: string): Promise<FileEffortMap | null> {
   if (!isRepo) {
     return null;
   }
-  const files = (await git.raw(["ls-files"])).trim().split("\n");
-  const { map, stats } = await getMapAndStats(files);
+  const { map, stats } = await getMapAndStats();
   return Object.keys(map).reduce((acc: any, curr) => {
     const changes = acc[curr];
     acc[curr] = { changes, frequency: assignFrequency(stats, changes) };
@@ -56,27 +55,31 @@ function computeBuckets(stats: Stats) {
   };
 }
 
-async function getMapAndStats(
-  files: string[]
-): Promise<{ map: FileChangesMap; stats: Stats }> {
-  return await files.reduce(
-    async (acc, curr) => {
-      const { map, stats } = await acc;
-      const log = await git.log({
-        file: curr,
-      });
-      console.log(`log: ${log.total} for file ${curr}`);
-      map[curr] = log.total;
-      stats.max = Math.max(stats.max, log.total);
-      stats.min = Math.min(stats.min, log.total);
-      return { map, stats };
-    },
-    Promise.resolve<{
-      stats: {
-        max: number;
-        min: number;
-      };
-      map: FileChangesMap;
-    }>({ map: {}, stats: { max: 0, min: 0 } })
-  );
+interface FileChanges {
+  map: FileChangesMap;
+  stats: Stats;
+}
+
+async function getMapAndStats(): Promise<FileChanges> {
+  // git log --name-status $*| grep -E '^[A-Z]\s+'| cut -c3-500| sort| uniq -c| grep -vE '^ {6}1 '| sort -n
+  const log = (
+    await git.raw(["log", "--name-only", "--pretty=format:"])
+  ).trim();
+  return log
+    .split("\n")
+    .filter((line) => line !== "")
+    .reduce(
+      (acc, curr) => {
+        const { map, stats } = acc;
+        if (!map[curr]) {
+          map[curr] = 0;
+        }
+        map[curr]++;
+
+        stats.max = Math.max(stats.max, map[curr]);
+        stats.min = Math.min(stats.min, map[curr]);
+        return { map, stats };
+      },
+      { map: {}, stats: { max: 0, min: 0 } } as FileChanges
+    );
 }

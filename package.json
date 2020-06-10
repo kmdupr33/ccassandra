@@ -3,6 +3,10 @@
   "displayName": "Change Score",
   "publisher": "matt-dupree",
   "description": "Know where to spend your refactoring time",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kmdupr33/ccassandra"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.45.0"
