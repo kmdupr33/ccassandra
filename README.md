@@ -6,7 +6,7 @@ This plugin helps you find the most useful refactorings you can perform on your 
 
 Change score information is displayed in the status bar:
 
-![status bar](images/change-score.png)
+![status bar](screenshots/change-score.png)
 
 ## Release Notes
 
